@@ -33,3 +33,7 @@ const char *inet_ntop2(void *addr,char *buf,size_t size){
     return inet_ntop(sas->ss_family,src,buf,size);
 
 }
+
+int get_listener_socket(void){
+    
+}
