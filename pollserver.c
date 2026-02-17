@@ -35,5 +35,23 @@ const char *inet_ntop2(void *addr,char *buf,size_t size){
 }
 
 int get_listener_socket(void){
-    
+    int listener;
+    int yes=1;
+    int rv;
+    struct addrinfo hints, *ai, *p;
+    memset(&hints,0,sizeof hints);
+    hints.ai_family=AF_INET;
+    hints.ai_socktype=SOCK_STREAM;
+    hints.ai_flags=AI_PASSIVE;
+    if((rv=getaddrinfo(NULL,PORT,&hints,&ai))!=0){
+        fprintf(stderr,"pollingserver",gai_strerror(rv));
+        exit(1);
+    }
+    for(p=ai;p!=NULL;p=p->ai_next){
+        listener=socket(p->ai_family,p->ai_socktype,p->ai_protocol);
+        if(listener<0){
+            continue;
+        }
+    }
+
 }
