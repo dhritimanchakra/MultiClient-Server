@@ -13,26 +13,27 @@
 
 #define PORT "3000"
 
-const char *inet_ntop2(void *addr,char *buf,size_t size){
-    struct sockaddr_storage *sas=addr;
+const char *inet_ntop2(void *addr, char *buf, size_t size)
+{
+    struct sockaddr_storage *sas = addr;
     struct sockaddr_in *sa4;
     struct sockaddr_in6 *sa6;
     void *src;
 
-    switch(sas->ss_family){
+    switch (sas->ss_family) {
         case AF_INET:
-            sa4=(struct sockaddr_in *)sas;
-            src=&sa4->sin_addr;
+            sa4 = addr;
+            src = &(sa4->sin_addr);
             break;
         case AF_INET6:
-            sa6=(struct sockaddr_int6 *)sas;
+            sa6 = addr;
             src = &(sa6->sin6_addr);
             break;
         default:
             return NULL;
     }
-    return inet_ntop(sas->ss_family,src,buf,size);
 
+    return inet_ntop(sas->ss_family, src, buf, size);
 }
 
 int get_listener_socket(void){
@@ -169,4 +170,25 @@ void process_connections(int listener,int *fd_count,int *fd_size,struct pollfd *
 
 int main(void){
     int listener;
+    int fd_size=5;
+    int fd_count=0;
+    struct pollfd *pfds=malloc(sizeof *pfds*fd_size);
+    listener=get_listener_socket();
+    if(listener==-1){
+        fprintf(stderr,"there is a error");
+        exit(1);
+
+    }
+    pfds[0].fd=listener;
+    pfds[0].events=POLLIN;
+    fd_count=1;
+    puts("pollserver: waiting for connections..."); 
+    for(;;){
+        int poll_count=poll(pfds,fd_count,-1);
+        if(poll_count==-1){
+            perror("poll");
+            exit(1);
+        }process_connections(listener, &fd_count, &fd_size, &pfds);
+    }
+    free(pfds);
 }
